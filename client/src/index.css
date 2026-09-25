@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+
+body { @apply bg-slate-50 text-slate-900 antialiased; }
+.dark body { @apply bg-slate-950 text-slate-100; }
+
+/* Magic-UI-inspired touches: gradient hero, beam borders, shimmer, spotlight, marquee */
+.hero-gradient {
+  background:
+    radial-gradient(60rem 30rem at 15% -10%, rgba(99, 102, 241, 0.25), transparent 60%),
+    radial-gradient(50rem 26rem at 85% 0%, rgba(168, 85, 247, 0.22), transparent 60%),
+    radial-gradient(40rem 24rem at 50% 110%, rgba(34, 211, 238, 0.18), transparent 60%);
+}
+.beam-card { position: relative; overflow: hidden; }
+.beam-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+  transform: translateX(-100%); animation: beam 3.5s ease-in-out infinite;
+}
+@keyframes beam { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(200%); } }
+.shimmer { position: relative; overflow: hidden; }
+.shimmer::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%);
+  animation: shimmer 2s infinite; transform: translateX(-100%);
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.spotlight { position: relative; }
+.spotlight::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(20rem circle at var(--spot-x, 50%) var(--spot-y, 0%), rgba(99,102,241,0.15), transparent 60%);
+}
+.marquee { display: flex; gap: 2.5rem; animation: marquee 28s linear infinite; width: max-content; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.animate-in { animation: fadeUp 0.5s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
