@@ -64,7 +64,7 @@ export default function History() {
             <option value="score">Highest score</option>
           </Select>
         </div>
-        {!filtered.length && <p className="text-sm text-slate-500">No job matches yet. <Link to="/app/jobs" className="text-indigo-600">Run your first match</Link>.</p>}
+        {!filtered.length && <p className="text-sm text-slate-500">No job matches yet. <Link to="/app/jobs" className="font-semibold text-zinc-900 underline decoration-lime-500 decoration-2 underline-offset-4 dark:text-white dark:decoration-lime-300">Run your first match</Link></p>}
         <div className="space-y-2">
           {filtered.map((m) => (
             <div key={m._id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-100 p-3 dark:border-slate-800">

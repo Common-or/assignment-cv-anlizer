@@ -121,7 +121,7 @@ export default function ResumeAnalysis() {
                 <RadarChart data={dist}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
-                  <Radar dataKey="value" fill="#6366f1" fillOpacity={0.4} stroke="#6366f1" />
+                  <Radar dataKey="value" fill="#65a30d" fillOpacity={0.35} stroke="#65a30d" />
                 </RadarChart>
               </ResponsiveContainer>
             ) : <p className="text-sm text-slate-500">No skills to chart.</p>}
@@ -160,7 +160,7 @@ export default function ResumeAnalysis() {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-20} height={60} />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="value" fill="#65a30d" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -168,7 +168,7 @@ export default function ResumeAnalysis() {
       )}
 
       {!!improvements.length && (
-        <Card className="border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/30">
+        <Card className="border-lime-600/25 bg-lime-500/[0.06] dark:border-lime-300/20 dark:bg-lime-300/[0.05]">
           <h3 className="mb-2 font-semibold">Improve My CV — AI suggestions</h3>
           <ul className="list-disc space-y-1 pl-5 text-sm">
             {improvements.map((s, i) => <li key={i}>{s}</li>)}

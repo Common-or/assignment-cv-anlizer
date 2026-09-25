@@ -3,12 +3,21 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
-      colors: {
-        brand: { 50: '#eef4ff', 500: '#4f46e5', 600: '#4338ca', 700: '#3730a3' },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'ui-sans-serif', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       keyframes: {
-        shimmer: { '100%': { transform: 'translateX(100%)' } },
-        beam: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(200%)' } },
+        marquee: { to: { transform: 'translateX(-50%)' } },
+        fadeUp: { from: { opacity: '0', transform: 'translateY(12px)' }, to: { opacity: '1', transform: 'none' } },
+        pulseSoft: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.55' } },
+        gauge: { from: { strokeDashoffset: 'var(--gauge-from)' }, to: { strokeDashoffset: 'var(--gauge-to)' } },
+      },
+      animation: {
+        marquee: 'marquee 32s linear infinite',
+        fadeUp: 'fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both',
+        pulseSoft: 'pulseSoft 2.2s ease-in-out infinite',
       },
     },
   },

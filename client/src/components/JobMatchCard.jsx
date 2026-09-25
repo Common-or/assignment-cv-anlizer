@@ -4,7 +4,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 export default function JobMatchCard({ match }) {
   if (!match) return null;
   return (
-    <Card className="beam-card animate-in">
+    <Card className="animate-in">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Job Match — {match.overallScore}% compatibility</h3>
         <Badge tone={match.overallScore >= 75 ? 'green' : match.overallScore >= 50 ? 'amber' : 'red'}>

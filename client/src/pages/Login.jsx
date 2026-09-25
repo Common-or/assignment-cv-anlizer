@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, Input, Alert } from '../components/ui';
-import Navbar from '../components/Navbar';
+import { Button, Field, Input } from '../components/ui';
+import { AuthShell, AuthFooterLink } from './AuthShell';
 
 export default function Login() {
   const { login } = useAuth();
@@ -29,21 +29,21 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <div className="mx-auto max-w-md px-4 py-14">
-        <Card>
-          <h1 className="text-xl font-bold">Login</h1>
-          <p className="mb-4 text-sm text-slate-500">Access your CV workspace.</p>
-          {error && <Alert tone="red" className="mb-3">{error}</Alert>}
-          <form onSubmit={submit} className="space-y-3">
-            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <Button className="w-full" disabled={busy}>{busy ? 'Logging in…' : 'Login'}</Button>
-          </form>
-          <p className="mt-3 text-sm text-slate-500">No account? <Link to="/register" className="text-indigo-600">Register</Link></p>
-        </Card>
-      </div>
-    </div>
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to your CV workspace."
+      error={error}
+      footer={<AuthFooterLink to="/register" prefix="New here?" label="Create an account" />}
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <Field label="Email">
+          <Input type="email" placeholder="you@example.com" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </Field>
+        <Field label="Password">
+          <Input type="password" placeholder="••••••••" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </Field>
+        <Button className="w-full" size="lg" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</Button>
+      </form>
+    </AuthShell>
   );
 }

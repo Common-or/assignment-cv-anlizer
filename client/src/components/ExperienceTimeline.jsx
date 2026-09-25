@@ -19,7 +19,7 @@ export default function ExperienceTimeline({ items = [], title = 'Experience' })
       <ol className="relative space-y-4 border-l border-slate-200 pl-4 dark:border-slate-700">
         {items.map((e, i) => (
           <li key={i} className="relative">
-            <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-500" />
+            <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-lime-500 ring-4 ring-lime-500/15" />
             <p className="text-sm font-medium">{entryTitle(e, i)}</p>
             {entrySub(e) && <p className="text-xs text-slate-500">{entrySub(e)}</p>}
             {typeof e === 'object' && e.description && (

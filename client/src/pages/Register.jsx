@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, Input, Alert } from '../components/ui';
-import Navbar from '../components/Navbar';
+import { Button, Field, Input } from '../components/ui';
+import { AuthShell, AuthFooterLink } from './AuthShell';
 
 export default function Register() {
   const { register } = useAuth();
@@ -30,22 +30,24 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <div className="mx-auto max-w-md px-4 py-14">
-        <Card>
-          <h1 className="text-xl font-bold">Create account</h1>
-          <p className="mb-4 text-sm text-slate-500">Start analyzing your CV with AI.</p>
-          {error && <Alert tone="red" className="mb-3">{error}</Alert>}
-          <form onSubmit={submit} className="space-y-3">
-            <Input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <Input type="password" placeholder="Password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <Button className="w-full" disabled={busy}>{busy ? 'Creating…' : 'Register'}</Button>
-          </form>
-          <p className="mt-3 text-sm text-slate-500">Have an account? <Link to="/login" className="text-indigo-600">Login</Link></p>
-        </Card>
-      </div>
-    </div>
+    <AuthShell
+      title="Create your account"
+      subtitle="Start analyzing your CV in under a minute."
+      error={error}
+      footer={<AuthFooterLink to="/login" prefix="Already have an account?" label="Sign in" />}
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <Field label="Full name">
+          <Input placeholder="Jane Doe" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        </Field>
+        <Field label="Email">
+          <Input type="email" placeholder="you@example.com" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </Field>
+        <Field label="Password" hint="Minimum 6 characters.">
+          <Input type="password" placeholder="••••••••" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </Field>
+        <Button className="w-full" size="lg" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</Button>
+      </form>
+    </AuthShell>
   );
 }

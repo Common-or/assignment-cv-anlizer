@@ -65,11 +65,11 @@ export default function ResumeUploader({ onDone }) {
       <div
         {...getRootProps()}
         className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition ${
-          isDragActive ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30' : 'border-slate-300 dark:border-slate-700'
+          isDragActive ? 'border-lime-500 bg-lime-300/10 dark:bg-lime-300/[0.06]' : 'border-zinc-300 dark:border-white/15'
         }`}
       >
         <input {...getInputProps()} />
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-200">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white dark:bg-lime-300 dark:text-zinc-950">
           {busy ? <Loader2 className="animate-spin" /> : <UploadCloud />}
         </div>
         {busy ? (
