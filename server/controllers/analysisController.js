@@ -33,6 +33,7 @@ async function analyzeResume(req, res, next) {
           recommendations: result.recommendations,
           aiProvider: result.aiProvider,
           aiModel: result.aiModel,
+          aiNotice: result.aiNotice || '',
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );

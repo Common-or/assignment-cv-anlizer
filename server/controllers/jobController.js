@@ -94,6 +94,7 @@ async function matchJob(req, res, next) {
         explanation: result.explanation,
         aiProvider: result.aiProvider,
         aiModel: result.aiModel,
+        aiNotice: result.aiNotice || '',
       });
       res.status(201).json({ match });
     } catch (err) {

@@ -17,6 +17,7 @@ const matchSchema = new mongoose.Schema(
     explanation: { type: [String], default: [] },
     aiProvider: { type: String, default: 'xai' },
     aiModel: { type: String, default: '' },
+    aiNotice: { type: String, default: '' },
   },
   { timestamps: true }
 );

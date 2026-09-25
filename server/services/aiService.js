@@ -33,11 +33,55 @@ async function chatCompletion(messages, { jsonMode = true, temperature = 0.2 } =
     return { content, model };
   } catch (err) {
     const status = err?.response?.status;
-    const detail = err?.response?.data?.error?.message || err?.response?.data?.message || err.message;
+    const rawErr = err?.response?.data?.error;
+    const detail =
+      (typeof rawErr === 'string' ? rawErr : rawErr?.message) ||
+      err?.response?.data?.message ||
+      err.message;
     const error = new Error(`AI API failure: ${detail}`);
-    error.status = status === 401 ? 502 : 502;
+    error.status = 502;
+    // Quota / billing / auth problems -> caller may degrade to heuristic engine
+    error.fallback = /permission-denied|credit|license|quota|insufficient|unauthorized|invalid.api.key|incorrect.api.key|billing|forbidden/i.test(
+      String(detail)
+    );
     throw error;
   }
+}
+
+const FALLBACK_NOTICE =
+  'Grok is unavailable (no xAI key or no credits on the account) — showing heuristic analysis. Add credits at console.x.ai for full AI results.';
+
+function fallbackAnalysisResult(cleaned) {
+  const parsed = normalizeAnalysisPayload(fallbackAnalysis(cleaned), cleaned.length);
+  const { score, breakdown } = heuristicCvScore(parsed);
+  return {
+    ...parsed,
+    score,
+    scoreBreakdown: breakdown,
+    aiProvider: 'fallback',
+    aiModel: 'heuristic-v1',
+    aiNotice: FALLBACK_NOTICE,
+  };
+}
+
+function fallbackMatchResult(candidateJson, job) {
+  const { fallbackMatch } = require('./matchingService');
+  return { ...fallbackMatch(candidateJson, job), aiProvider: 'fallback', aiModel: 'heuristic-v1', aiNotice: FALLBACK_NOTICE };
+}
+
+function fallbackImproveResult() {
+  return {
+    improvements: [
+      'Start your summary with role + years + stack, e.g. "Frontend developer with 3 years building React apps...".',
+      'Turn duties into achievements: "Improved page load by 40% by code-splitting".',
+      'Add tech stack to every experience and project entry.',
+      'Include links: GitHub, live demos, portfolio.',
+      'Add a Skills section grouped by Frontend / Backend / Database / DevOps.',
+    ],
+    aiProvider: 'fallback',
+    aiModel: 'heuristic-v1',
+    aiNotice: FALLBACK_NOTICE,
+  };
 }
 
 function safeParseJson(content) {
@@ -225,17 +269,21 @@ async function analyzeResume(text) {
     throw err;
   }
   if (!hasApiKey()) {
-    const parsed = normalizeAnalysisPayload(fallbackAnalysis(cleaned), cleaned.length);
-    const { score, breakdown } = heuristicCvScore(parsed);
-    return { ...parsed, score, scoreBreakdown: breakdown, aiProvider: 'fallback', aiModel: 'heuristic-v1' };
+    return fallbackAnalysisResult(cleaned);
   }
   const prompt = RESUME_PROMPT.replace('{{RESUME_TEXT}}', cleaned);
-  const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
-  const parsedRaw = safeParseJson(content);
-  const parsed = normalizeAnalysisPayload(parsedRaw, cleaned.length);
-  const { score, breakdown } = heuristicCvScore(parsed);
-  // Blend: trust deterministic weights for transparency; expose AI lists as-is.
-  return { ...parsed, score, scoreBreakdown: breakdown, aiProvider: 'xai', aiModel: model };
+  try {
+    const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
+    const parsedRaw = safeParseJson(content);
+    const parsed = normalizeAnalysisPayload(parsedRaw, cleaned.length);
+    const { score, breakdown } = heuristicCvScore(parsed);
+    // Blend: trust deterministic weights for transparency; expose AI lists as-is.
+    return { ...parsed, score, scoreBreakdown: breakdown, aiProvider: 'xai', aiModel: model };
+  } catch (err) {
+    if (!err.fallback) throw err;
+    console.warn('xAI unavailable, heuristic fallback for analysis:', err.message);
+    return fallbackAnalysisResult(cleaned);
+  }
 }
 
 async function matchResumeWithJob(candidateJson, jobText) {
@@ -246,42 +294,43 @@ async function matchResumeWithJob(candidateJson, jobText) {
     throw err;
   }
   if (!hasApiKey()) {
-    const { fallbackMatch } = require('./matchingService');
-    return { ...fallbackMatch(candidateJson, job), aiProvider: 'fallback', aiModel: 'heuristic-v1' };
+    return fallbackMatchResult(candidateJson, job);
   }
   const prompt = MATCH_PROMPT.replace('{{CANDIDATE_JSON}}', JSON.stringify(candidateJson).slice(0, 12000)).replace(
     '{{JOB_TEXT}}',
     job
   );
-  const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
-  const parsed = safeParseJson(content);
-  const { normalizeMatchPayload } = require('./matchingService');
-  return { ...normalizeMatchPayload(parsed), aiProvider: 'xai', aiModel: model };
+  try {
+    const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
+    const parsed = safeParseJson(content);
+    const { normalizeMatchPayload } = require('./matchingService');
+    return { ...normalizeMatchPayload(parsed), aiProvider: 'xai', aiModel: model };
+  } catch (err) {
+    if (!err.fallback) throw err;
+    console.warn('xAI unavailable, heuristic fallback for matching:', err.message);
+    return fallbackMatchResult(candidateJson, job);
+  }
 }
 
 async function improveResume(text) {
   const cleaned = String(text || '').slice(0, 15000);
   if (!hasApiKey()) {
-    return {
-      improvements: [
-        'Start your summary with role + years + stack, e.g. "Frontend developer with 3 years building React apps...".',
-        'Turn duties into achievements: "Improved page load by 40% by code-splitting".',
-        'Add tech stack to every experience and project entry.',
-        'Include links: GitHub, live demos, portfolio.',
-        'Add a Skills section grouped by Frontend / Backend / Database / DevOps.',
-      ],
-      aiProvider: 'fallback',
-      aiModel: 'heuristic-v1',
-    };
+    return fallbackImproveResult();
   }
   const prompt = IMPROVE_PROMPT.replace('{{RESUME_TEXT}}', cleaned);
-  const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
-  const parsed = safeParseJson(content);
-  return {
-    improvements: (Array.isArray(parsed.improvements) ? parsed.improvements : []).map(String).slice(0, 10),
-    aiProvider: 'xai',
-    aiModel: model,
-  };
+  try {
+    const { content, model } = await chatCompletion([{ role: 'user', content: prompt }]);
+    const parsed = safeParseJson(content);
+    return {
+      improvements: (Array.isArray(parsed.improvements) ? parsed.improvements : []).map(String).slice(0, 10),
+      aiProvider: 'xai',
+      aiModel: model,
+    };
+  } catch (err) {
+    if (!err.fallback) throw err;
+    console.warn('xAI unavailable, heuristic fallback for improvements:', err.message);
+    return fallbackImproveResult();
+  }
 }
 
 module.exports = {

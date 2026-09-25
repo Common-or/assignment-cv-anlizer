@@ -34,6 +34,7 @@ const analysisSchema = new mongoose.Schema(
     improvements: { type: [String], default: [] },
     aiProvider: { type: String, default: 'xai' }, // xai | fallback
     aiModel: { type: String, default: '' },
+    aiNotice: { type: String, default: '' },
   },
   { timestamps: true }
 );
